@@ -1,10 +1,9 @@
 const model_url = 'https://cdn.jsdelivr.net/gh/ml5js/ml5-data-and-models/models/pitch-detection/crepe/';
 
-let pitch;
-let fd;
-let mic;
-let freq = 0;
-let threshold = 1;
+let pitch;  // el detector
+let fd;     // ;p detectadp
+let mic;    // el mic
+
 
 let notes = [
 {
@@ -40,7 +39,6 @@ note:
 var figuras = [];
 
 let r;
-
 let img;
 let posXfigs, posYfigs, anchoFigs, altoFigs, factorFigs;
 var canRender = false;
@@ -56,14 +54,12 @@ function setup() {
   console.log('setup. creating canvas:');
   
   cnv = createCanvas(windowWidth, windowHeight);
-  cnv.mousePressed(initAudio);
-  
+  cnv.mousePressed(initAudio);  
+  // muestra una indicacion de lo que tiene que hacer el usuario
   text('tap here and enable mic to begin', 10, 20, width - 20);
 
-
-  ///   
+  
   imageMode(CENTER);
-
   posXfigs = width/2;
   posYfigs = height/2;
 
@@ -78,9 +74,6 @@ function setup() {
     anchoFigs = width;
     altoFigs = width/factorFigs;
   }
-
-
-
   console.log('nos vimos...');
 }
 
@@ -103,51 +96,22 @@ function listening() {
 
 function modelLoaded() {
   console.log('model loaded');
-  // pitch.getPitch(gotPitch);
-  canRender = true;
-  // gotPitch();
   getPitch();
-}
-
-function gotPitch() {
-  console.log('mic level: '+mic.getLevel());  
-  
-  // pitch.getPitch((err, frequency) => {
-  //   console.log(frequency);
-  // });
-
-  // // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise  
-  // pitch.getPitch().then(    
-  //   result => {
-  //     if(result) pith = result.freq ? result.freq : 0;  
-  //     console.log(pitch);
-  //     gotPitch();
-  //   },
-    
-  //   err => {
-  //     console.log('nada');
-  //     pitch = 0;
-  //     gotPitch();
-  //   }
-  // )
-   
+  canRender = true;
+  cnv.mousePressed(() => console.log('puto el que lee'));
 }
 
 function getPitch() {
   pitch.getPitch(function(err, frequency) {
     if (frequency) {
-      // select('#result').html(frequency);
       console.log(frequency);
       fd = frequency;
     } else {
-      // select('#result').html('No pitch detected');
       console.log('no pitch');
     }
     getPitch();
   })
 }
-
-
 
 function draw() {
 
