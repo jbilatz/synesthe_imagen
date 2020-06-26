@@ -1,3 +1,40 @@
+const model_url = 'https://cdn.jsdelivr.net/gh/ml5js/ml5-data-and-models/models/pitch-detection/crepe/';
+
+let pitch = 800;
+let mic;
+let freq = 0;
+let threshold = 1;
+
+let notes = [
+{
+note: 
+  'A', 
+  freq: 
+  440
+}
+, 
+{
+note: 
+  'E', 
+  freq: 
+  329.6276
+}
+, 
+{
+note: 
+  'C', 
+  freq: 
+  261.6256
+}
+, 
+{
+note: 
+  'G', 
+  freq: 
+  391.9954
+}
+];
+
 
 var figuras = [];
 
@@ -5,7 +42,7 @@ let r;
 
 let img;
 let posXfigs, posYfigs, anchoFigs, altoFigs, factorFigs;
-
+var canRender = false;
 
 function preload() {
   //img = loadImage('data/12.png');
@@ -17,9 +54,14 @@ function preload() {
 
 
 function setup() {
-  //createCanvas(1280, 720);
-  createCanvas(windowWidth, windowHeight);
+  console.log('setup. creating canvas:');
+  // console.log(cnv);  
+  cnv = createCanvas(windowWidth, windowHeight);
+  cnv.mousePressed(initAudio);
+  text('tap here and enable mic to begin', 10, 20, width - 20);
 
+
+  ///   
   imageMode(CENTER);
 
   posXfigs = width/2;
@@ -36,26 +78,83 @@ function setup() {
     anchoFigs = width;
     altoFigs = width/factorFigs;
   }
+
+
+
+  console.log('nos vimos...');
 }
 
 
+function initAudio(){
+  console.log('user init audio...');
+  userStartAudio(null, () => {
+    audioContext = getAudioContext();  
+    mic = new p5.AudioIn();
+    mic.start(listening);
+    console.log('audio running');
+  })
+}
+
+function listening() {
+  console.log('listening');
+  pitch = ml5.pitchDetection(model_url, audioContext, mic.stream, modelLoaded);
+  console.log(pitch);
+}
+
+function modelLoaded() {
+  console.log('model loaded');
+  // pitch.getPitch(gotPitch);
+  canRender = true;
+  gotPitch();
+}
+
+function gotPitch() {
+  console.log('mic level: '+mic.getLevel());  
+  
+  
+  pitch.getPitch().then(
+    result => {
+
+      if(result) pith = result.freq ? result.freq.value : 0;  
+      console.log(pitch);
+      gotPitch();
+    },
+    err => {
+      console.log('nada');
+      pitch = 0;
+      gotPitch();
+    }
+  )
+   
+}
+
+
+
 function draw() {
+
+  if( !canRender ) return;
+  
   background(0);
+
+  
 
   if (frameCount%30 == 0) {
     r = int(random(28));
   }
 
-
-
-
   push();
+  
+  console.log(typeof pitch);
 
-  tint(255, mouseY/2);
+  var t = map(pitch, 800, 1600, 0, 255);
+  tint(255, t);
+  
+  
   image(figuras[r], posXfigs, posYfigs, anchoFigs, altoFigs);
 
   tint(255);
   image(figuras[28], posXfigs, posYfigs, anchoFigs, altoFigs);
 
-  push();
+  pop();
+  
 }
