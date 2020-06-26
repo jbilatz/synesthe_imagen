@@ -1,6 +1,7 @@
 const model_url = 'https://cdn.jsdelivr.net/gh/ml5js/ml5-data-and-models/models/pitch-detection/crepe/';
 
-let pitch = 800;
+let pitch;
+let fd;
 let mic;
 let freq = 0;
 let threshold = 1;
@@ -45,8 +46,6 @@ let posXfigs, posYfigs, anchoFigs, altoFigs, factorFigs;
 var canRender = false;
 
 function preload() {
-  //img = loadImage('data/12.png');
-
   for (let i = 0; i < 29; i++ ) {
     figuras[i] = loadImage( "./data/" + i + ".png" );
   }
@@ -55,9 +54,10 @@ function preload() {
 
 function setup() {
   console.log('setup. creating canvas:');
-  // console.log(cnv);  
+  
   cnv = createCanvas(windowWidth, windowHeight);
   cnv.mousePressed(initAudio);
+  
   text('tap here and enable mic to begin', 10, 20, width - 20);
 
 
@@ -105,27 +105,46 @@ function modelLoaded() {
   console.log('model loaded');
   // pitch.getPitch(gotPitch);
   canRender = true;
-  gotPitch();
+  // gotPitch();
+  getPitch();
 }
 
 function gotPitch() {
   console.log('mic level: '+mic.getLevel());  
   
-  
-  pitch.getPitch().then(
-    result => {
+  // pitch.getPitch((err, frequency) => {
+  //   console.log(frequency);
+  // });
 
-      if(result) pith = result.freq ? result.freq.value : 0;  
-      console.log(pitch);
-      gotPitch();
-    },
-    err => {
-      console.log('nada');
-      pitch = 0;
-      gotPitch();
-    }
-  )
+  // // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise  
+  // pitch.getPitch().then(    
+  //   result => {
+  //     if(result) pith = result.freq ? result.freq : 0;  
+  //     console.log(pitch);
+  //     gotPitch();
+  //   },
+    
+  //   err => {
+  //     console.log('nada');
+  //     pitch = 0;
+  //     gotPitch();
+  //   }
+  // )
    
+}
+
+function getPitch() {
+  pitch.getPitch(function(err, frequency) {
+    if (frequency) {
+      // select('#result').html(frequency);
+      console.log(frequency);
+      fd = frequency;
+    } else {
+      // select('#result').html('No pitch detected');
+      console.log('no pitch');
+    }
+    getPitch();
+  })
 }
 
 
@@ -146,7 +165,7 @@ function draw() {
   
   console.log(typeof pitch);
 
-  var t = map(pitch, 800, 1600, 0, 255);
+  var t = map(fd, 800, 1600, 0, 255);
   tint(255, t);
   
   
