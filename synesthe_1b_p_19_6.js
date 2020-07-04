@@ -4,7 +4,7 @@ var figuras = [];
 
 let pitch;  // el detector
 let fd;
-let mlevel, micNivelRegistrado;     // ;p detectadp
+let mlevel, micNivelRegistrado;     // ;p detectado
 let mic;    // el mic
 let midiNote;
 let indiceFigura;
@@ -106,26 +106,31 @@ function draw() {
   // console.log('mic level es un número?: ' + !isNaN(mlevel) );
   // var t = map(fd, 800, 1600, 0, 255);
 
-  if(mlevel > unbralSupMic){
+  if(mlevel < umbralInfMic){
+    mostrarFiguras = false;
+    console.log('mostrarFiguras: '+mostrarFiguras);
+  }
+
+
+  if(mlevel > unbralSupMic && !mostrarFiguras){
     console.log('mic level: '+mic.getLevel());
     micNivelRegistrado = mlevel;
 
     mostrarFiguras = true;
     console.log('mostrarFiguras: '+mostrarFiguras);
 
-    midiNote = int(69+12*(log((fd)/440)));
-    console.log('midiNote: '+midiNote);
-    indiceFigura = midiNote - 48;
-    console.log('indiceFigura: '+indiceFigura);
-    fill(255);
-    text('nota: ' + midiNote, 40, 30, width - 40);
-  
+      midiNote = int(69+12*(log((fd)/440)));
+      console.log('midiNote: '+midiNote);
+      indiceFigura = midiNote - 48;
+      console.log('indiceFigura: '+indiceFigura);
 
   }
 
-  // var transp = 255;
-
   if(mostrarFiguras){
+
+    fill(255);
+    text('nota: ' + midiNote, 40, 30, width - 40);
+
 
     if(!isNaN(mlevel)){
 
@@ -133,12 +138,10 @@ function draw() {
       console.log('transparencia: '+transparencia);
     }
 
-
-
     push();
 
     tint(255, transparencia);
-    if(indiceFigura =>0 && indiceFigura < figuras.length ){
+    if( indiceFigura >= 0 && indiceFigura < figuras.length ){
 
       image(figuras[indiceFigura], posXfigs, posYfigs, anchoFigs, altoFigs);
 
@@ -146,10 +149,10 @@ function draw() {
   
     pop();
 
-    if(mlevel < umbralInfMic){
-      mostrarFiguras = false;
-      console.log('mostrarFiguras: '+mostrarFiguras);
-    }
+    // if(mlevel < umbralInfMic){
+    //   mostrarFiguras = false;
+    //   console.log('mostrarFiguras: '+mostrarFiguras);
+    // }
 
   }
 
