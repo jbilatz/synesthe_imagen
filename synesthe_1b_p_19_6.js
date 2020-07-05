@@ -28,7 +28,7 @@ function setup() {
   cnv = createCanvas(windowWidth, windowHeight);
   cnv.mousePressed(initAudio);  
   // muestra una indicacion de lo que tiene que hacer el usuario
-  textSize(16);
+  textSize(14);
   textLeading(30); // Set leading to 10
   text('clickear/tocar aquí para habilitar el mic y empezar\nclick/tap here and enable mic to begin', 40, 30, width - 40);
   
@@ -106,11 +106,6 @@ function draw() {
   // console.log('mic level es un número?: ' + !isNaN(mlevel) );
   // var t = map(fd, 800, 1600, 0, 255);
 
-  if(mlevel < umbralInfMic){
-    mostrarFiguras = false;
-    console.log('mostrarFiguras: '+mostrarFiguras);
-  }
-
 
   if(mlevel > unbralSupMic && !mostrarFiguras){
     console.log('mic level: '+mic.getLevel());
@@ -149,10 +144,10 @@ function draw() {
   
     pop();
 
-    // if(mlevel < umbralInfMic){
-    //   mostrarFiguras = false;
-    //   console.log('mostrarFiguras: '+mostrarFiguras);
-    // }
+    if(mlevel < umbralInfMic){
+      mostrarFiguras = false;
+      console.log('mostrarFiguras: '+mostrarFiguras);
+    }
 
   }
 
