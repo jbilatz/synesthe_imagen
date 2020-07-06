@@ -16,6 +16,12 @@ let unbralSupMic, umbralInfMic;
 let posXfigs, posYfigs, anchoFigs, altoFigs, factorFigs;
 var canRender = false;
 
+
+let promedio = [];
+let cant = 5;
+
+
+
 function preload() {
   for (let i = 0; i < 29; i++ ) {
     figuras[i] = loadImage( "./data/" + i + ".png" );
@@ -23,8 +29,12 @@ function preload() {
 }
 
 function setup() {
+
   console.log('setup. creating canvas:');
-  
+  promedio = [];
+  cantidad = 5;
+
+
   cnv = createCanvas(windowWidth, windowHeight);
   cnv.mousePressed(initAudio);  
   // muestra una indicacion de lo que tiene que hacer el usuario
@@ -47,7 +57,6 @@ function setup() {
     anchoFigs = width;
     altoFigs = width/factorFigs;
   }
-  console.log('nos vimos...');
 
   transparencia = 0;
   mostrarFiguras = false;
@@ -55,6 +64,9 @@ function setup() {
   unbralSupMic = 0.015;
   umbralInfMic = 0.003;
   indiceFigura = 0;
+
+  console.log('end setup...');
+
 }
 
 
@@ -70,51 +82,97 @@ function initAudio(){
 
 function listening() {
   console.log('listening');
-  pitch = ml5.pitchDetection(model_url, audioContext, mic.stream, modelLoaded);
+  pitch = ml5.pitchDetection(model_url, audioContext, mic.stream, modelLoaded);  
   // console.log(pitch);
 }
 
 function modelLoaded() {
   console.log('model loaded');
-  getPitch();
+  pichi();
   canRender = true;
   cnv.mousePressed(() => console.log('puto el que lee'));
 }
 
-function getPitch() {
+
+function pichi() {
+  console.log('get pitch');
   pitch.getPitch(function(err, frequency) {
     if (frequency) {
-      // console.log("frequency: "+frequency);
-      fd = frequency;
+      console.log("frequency: "+frequency);
+      promedio.push(frequency);
+      // fd = frequency;
     } else {
       // console.log('no pitch');
     }
-    getPitch();
+    pichi();
+
   })
+
+
+  if(promedio.length >= cant) promedio.shift();
+  promedio.forEach( 
+    f => {
+      fd += f;
+    } 
+   )
+  
+  fd /= cant;  
+  console.log("promedio: "+fd);
 }
+
+
+// amortiguador
+function ease(prev, current, factor) {
+  return current*factor + prev * (1 - factor); 
+}
+
+// dispara alpha
+function trigger(mic){
+  if(mic > thr) alpha = 255;
+}
+
+let velocidad = 0.1;
+
 
 function draw() {
 
   if( !canRender ) return;
-  
   background(0);
   
-  // console.log(typeof pitch);
-  mlevel = mic.getLevel();
+  constrain(alpha - velocidad, 0, 255);
   
-  // console.log('mic level: '+mic.getLevel());
-  // console.log('mic level es un número?: ' + !isNaN(mlevel) );
-  // var t = map(fd, 800, 1600, 0, 255);
+  mlevel = 1; // mic.getLevel();
+  // console.log('mic level: '+ mlevel);
+  midiNote = int(69+12*(log((fd)/440)));
+
+  transparencia = 255;
+
+ indiceFigura = midiNote - 48;
+ if( indiceFigura >= 0 && indiceFigura < figuras.length ){
+      image(figuras[indiceFigura], posXfigs, posYfigs, anchoFigs, altoFigs);
+  }
+
+
+ push();
+  tint(255);
+  image(figuras[28], posXfigs, posYfigs, anchoFigs, altoFigs);
+  pop();
+
+  // borrar...return
+  return;
+
+
 
 
   if(mlevel > unbralSupMic && !mostrarFiguras){
-    console.log('mic level: '+mic.getLevel());
+   
     micNivelRegistrado = mlevel;
 
     mostrarFiguras = true;
     console.log('mostrarFiguras: '+mostrarFiguras);
 
       midiNote = int(69+12*(log((fd)/440)));
+      
       console.log('midiNote: '+midiNote);
       indiceFigura = midiNote - 48;
       console.log('indiceFigura: '+indiceFigura);
@@ -128,9 +186,9 @@ function draw() {
 
 
     if(!isNaN(mlevel)){
-
-      transparencia = map(mlevel, 0, micNivelRegistrado, 0, 255);
-      console.log('transparencia: '+transparencia);
+      // transparencia = map(mlevel, 0, micNivelRegistrado, 0, 255);
+      transparencia = map(mlevel, 0, 1.0, 0, 255);
+      // console.log('transparencia: '+transparencia);
     }
 
     push();
@@ -151,11 +209,10 @@ function draw() {
 
   }
 
-  push();
 
+  push();
   tint(255);
   image(figuras[28], posXfigs, posYfigs, anchoFigs, altoFigs);
-
   pop();
 
 
