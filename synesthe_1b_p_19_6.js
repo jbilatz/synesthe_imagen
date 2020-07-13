@@ -182,7 +182,9 @@ function draw() {
 
     console.log('mic level: '+ mlevel);
 
-    pichi2();
+    // <<<<<<<<<<<<<<<<<<
+    // esto está mal... pichi se llama a si misma
+    // pichi2();
 
     // midiNote = int(69+12*(log((fd)/440)));
     // midiNote = freqToMidi(fd); 
